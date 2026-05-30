@@ -1,0 +1,832 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Cyclone Ditwah — Disaster Compensation Register | DS Horowpothana</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Source+Serif+4:ital,wght@0,300;0,400;0,600;1,300&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+<style>
+:root{--bg:#0d1117;--surface:#161b22;--surface2:#1c2333;--border:#30363d;--border2:#21262d;--text:#e6edf3;--text2:#8b949e;--text3:#484f58;--accent:#d4a017;--accent2:#b8860b;--danger:#f85149;--warn:#e3b341;--ok:#3fb950;--blue:#58a6ff;--radius:6px;--shadow:0 8px 32px rgba(0,0,0,.5);}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Source Serif 4',Georgia,serif;background:var(--bg);color:var(--text);min-height:100vh;font-size:15px;}
+body::before{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");pointer-events:none;z-index:0;opacity:.35;}
+#app{position:relative;z-index:1;}
+.app-header{background:var(--surface);border-bottom:1px solid var(--border);padding:0 28px;display:flex;align-items:center;gap:20px;height:64px;position:sticky;top:0;z-index:100;}
+.emblem{width:38px;height:38px;background:linear-gradient(135deg,var(--accent) 0%,var(--accent2) 100%);border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:15px;color:#0d1117;flex-shrink:0;box-shadow:0 0 0 2px rgba(212,160,23,.25);}
+.header-title{flex:1;}
+.header-title h1{font-family:'Rajdhani',sans-serif;font-size:17px;font-weight:700;letter-spacing:.04em;color:var(--text);line-height:1.2;}
+.header-title span{font-family:'Source Serif 4',serif;font-size:11px;color:var(--text2);font-style:italic;}
+.header-right{display:flex;align-items:center;gap:12px;}
+.user-badge{display:flex;align-items:center;gap:8px;background:var(--surface2);border:1px solid var(--border);border-radius:20px;padding:5px 14px 5px 8px;font-size:12px;color:var(--text2);font-family:'Rajdhani',sans-serif;font-weight:500;letter-spacing:.03em;}
+.user-badge .dot{width:7px;height:7px;border-radius:50%;background:var(--ok);box-shadow:0 0 6px var(--ok);}
+.btn{font-family:'Rajdhani',sans-serif;font-weight:600;letter-spacing:.06em;font-size:13px;padding:8px 18px;border-radius:var(--radius);border:none;cursor:pointer;transition:all .15s;}
+.btn-primary{background:var(--accent);color:#0d1117;}
+.btn-primary:hover{background:#e8b420;transform:translateY(-1px);}
+.btn-ghost{background:transparent;color:var(--text2);border:1px solid var(--border);}
+.btn-ghost:hover{color:var(--text);border-color:var(--text2);}
+.btn-danger{background:rgba(248,81,73,.15);color:var(--danger);border:1px solid rgba(248,81,73,.3);}
+.btn-danger:hover{background:rgba(248,81,73,.25);}
+.btn-excel{background:rgba(63,185,80,.15);color:var(--ok);border:1px solid rgba(63,185,80,.3);}
+.btn-excel:hover{background:rgba(63,185,80,.25);}
+.btn-pdf{background:rgba(248,81,73,.12);color:#ff9d99;border:1px solid rgba(248,81,73,.25);}
+.btn-pdf:hover{background:rgba(248,81,73,.2);}
+.btn-edit{background:rgba(88,166,255,.12);color:var(--blue);border:1px solid rgba(88,166,255,.25);font-size:11px;padding:4px 10px;}
+.btn-edit:hover{background:rgba(88,166,255,.22);}
+.btn-sm{padding:5px 12px;font-size:12px;}
+.tab-bar{background:var(--surface);border-bottom:1px solid var(--border);display:flex;padding:0 28px;}
+.tab-btn{font-family:'Rajdhani',sans-serif;font-weight:600;letter-spacing:.05em;font-size:13px;padding:14px 20px;border:none;background:transparent;color:var(--text2);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;transition:all .15s;}
+.tab-btn:hover{color:var(--text);}
+.tab-btn.active{color:var(--accent);border-bottom-color:var(--accent);}
+.main{padding:32px 28px;max-width:1200px;margin:0 auto;}
+.page{display:none;}
+.page.active{display:block;}
+#setup-screen{display:flex;align-items:center;justify-content:center;min-height:100vh;}
+.setup-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:48px;max-width:560px;width:100%;text-align:center;box-shadow:var(--shadow);}
+.setup-card .cyclone-icon{font-size:52px;margin-bottom:20px;display:block;animation:spin-slow 12s linear infinite;}
+@keyframes spin-slow{from{transform:rotate(0deg);}to{transform:rotate(360deg);}}
+.setup-card h2{font-family:'Rajdhani',sans-serif;font-size:26px;font-weight:700;letter-spacing:.04em;color:var(--text);margin-bottom:6px;}
+.setup-card p{color:var(--text2);font-size:14px;margin-bottom:28px;line-height:1.6;}
+.config-section{text-align:left;margin-bottom:20px;}
+.config-section label{display:block;font-family:'Rajdhani',sans-serif;font-weight:600;letter-spacing:.04em;font-size:12px;color:var(--text2);margin-bottom:6px;text-transform:uppercase;}
+.config-section input{width:100%;padding:10px 14px;background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);color:var(--text);font-family:'JetBrains Mono',monospace;font-size:13px;outline:none;transition:border-color .15s;}
+.config-section input:focus{border-color:var(--accent);}
+.config-hint{font-size:11px;color:var(--text3);margin-top:5px;font-style:italic;}
+.divider{border:none;border-top:1px solid var(--border);margin:20px 0;}
+.alert{padding:14px 18px;border-radius:var(--radius);margin-bottom:20px;font-size:14px;display:flex;align-items:flex-start;gap:12px;animation:slideIn .3s ease;}
+@keyframes slideIn{from{opacity:0;transform:translateY(-8px);}to{opacity:1;transform:none;}}
+.alert-danger{background:rgba(248,81,73,.12);border:1px solid rgba(248,81,73,.35);color:#ff9d99;}
+.alert-warn{background:rgba(227,179,65,.1);border:1px solid rgba(227,179,65,.35);color:var(--warn);}
+.alert-ok{background:rgba(63,185,80,.1);border:1px solid rgba(63,185,80,.35);color:var(--ok);}
+.alert-info{background:rgba(88,166,255,.1);border:1px solid rgba(88,166,255,.35);color:var(--blue);}
+.alert-icon{font-size:18px;flex-shrink:0;margin-top:1px;}
+.alert-body{flex:1;}
+.alert-title{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:15px;letter-spacing:.04em;}
+.alert-detail{font-size:13px;margin-top:4px;line-height:1.5;}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:28px;margin-bottom:24px;}
+.card-title{font-family:'Rajdhani',sans-serif;font-size:17px;font-weight:700;letter-spacing:.06em;color:var(--accent);text-transform:uppercase;margin-bottom:20px;padding-bottom:12px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px;}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+.form-grid.three{grid-template-columns:1fr 1fr 1fr;}
+.form-full{grid-column:1/-1;}
+.field label{display:block;font-family:'Rajdhani',sans-serif;font-weight:600;letter-spacing:.04em;font-size:12px;color:var(--text2);text-transform:uppercase;margin-bottom:6px;}
+.field label .req{color:var(--danger);margin-left:2px;}
+.field label .opt{color:var(--text3);font-weight:400;font-size:10px;text-transform:none;letter-spacing:0;margin-left:4px;}
+.field input,.field select{width:100%;padding:10px 14px;background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);color:var(--text);font-family:'Source Serif 4',serif;font-size:14px;outline:none;transition:border-color .15s,box-shadow .15s;}
+.field input:focus,.field select:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(212,160,23,.1);}
+.field select option{background:var(--surface2);}
+.nic-result{margin-top:8px;font-size:12px;font-family:'JetBrains Mono',monospace;padding:8px 12px;border-radius:4px;display:none;}
+.nic-result.found{background:rgba(248,81,73,.1);color:#ff9d99;display:block;}
+.nic-result.clear{background:rgba(63,185,80,.1);color:var(--ok);display:block;}
+.comp-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px;margin-bottom:16px;}
+.comp-card{border:2px solid var(--border2);border-radius:8px;padding:14px;cursor:pointer;transition:all .15s;position:relative;}
+.comp-card:hover{border-color:var(--border);}
+.comp-card.selected{border-color:var(--accent);background:rgba(212,160,23,.06);}
+.comp-card input[type=radio]{display:none;}
+.comp-type{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--text2);margin-bottom:4px;}
+.comp-amount{font-family:'JetBrains Mono',monospace;font-size:16px;font-weight:500;color:var(--text);}
+.comp-badge{position:absolute;top:8px;right:8px;font-size:9px;font-family:'Rajdhani',sans-serif;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:2px 6px;border-radius:3px;}
+.badge-business{background:rgba(88,166,255,.15);color:var(--blue);}
+.badge-house{background:rgba(212,160,23,.15);color:var(--accent);}
+.partial-box{background:rgba(212,160,23,.06);border:1px solid rgba(212,160,23,.25);border-radius:8px;padding:16px;margin-top:4px;display:none;}
+.partial-box.show{display:block;}
+.partial-box p{font-size:12px;color:var(--text2);margin-bottom:10px;font-family:'Rajdhani',sans-serif;letter-spacing:.04em;text-transform:uppercase;font-weight:600;}
+.partial-opts{display:flex;gap:10px;}
+.partial-opt{flex:1;padding:10px 14px;border:2px solid var(--border);border-radius:6px;cursor:pointer;text-align:center;transition:all .15s;}
+.partial-opt:hover{border-color:var(--text2);}
+.partial-opt.selected{border-color:var(--accent);background:rgba(212,160,23,.08);}
+.partial-opt input{display:none;}
+.partial-opt .po-label{font-family:'Rajdhani',sans-serif;font-size:12px;color:var(--text2);font-weight:600;text-transform:uppercase;letter-spacing:.05em;}
+.partial-opt .po-amount{font-family:'JetBrains Mono',monospace;font-size:15px;color:var(--text);margin-top:3px;}
+.form-actions{display:flex;gap:12px;justify-content:flex-end;margin-top:24px;}
+/* MODALS */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:500;align-items:center;justify-content:center;backdrop-filter:blur(4px);}
+.modal-overlay.show{display:flex;}
+.modal{background:var(--surface);border-radius:12px;padding:32px;max-width:680px;width:95%;box-shadow:var(--shadow);animation:popIn .25s cubic-bezier(.34,1.56,.64,1);max-height:90vh;overflow-y:auto;}
+.modal.modal-danger{border:1px solid var(--danger);box-shadow:0 0 40px rgba(248,81,73,.2),var(--shadow);}
+.modal.modal-blue{border:1px solid rgba(88,166,255,.4);}
+@keyframes popIn{from{transform:scale(.9);opacity:0;}to{transform:scale(1);opacity:1;}}
+.modal h3{font-family:'Rajdhani',sans-serif;font-size:20px;font-weight:700;letter-spacing:.04em;margin-bottom:6px;display:flex;align-items:center;gap:10px;}
+.modal-danger h3{color:var(--danger);}
+.modal-blue h3{color:var(--blue);}
+.modal p.sub{color:var(--text2);font-size:13px;margin-bottom:20px;}
+.dup-table{width:100%;border-collapse:collapse;margin-bottom:20px;}
+.dup-table th{font-family:'Rajdhani',sans-serif;font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--text3);padding:8px 12px;border-bottom:1px solid var(--border);text-align:left;}
+.dup-table td{padding:10px 12px;border-bottom:1px solid var(--border2);font-size:13px;}
+.dup-table tr:last-child td{border-bottom:none;}
+.modal-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:20px;}
+.modal-divider{border:none;border-top:1px solid var(--border);margin:20px 0;}
+/* edit modal specific */
+.edit-modal-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:16px;}
+.edit-modal-grid.three{grid-template-columns:1fr 1fr 1fr;}
+.edit-comp-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:8px;margin-bottom:12px;}
+.edit-comp-card{border:2px solid var(--border2);border-radius:8px;padding:12px;cursor:pointer;transition:all .15s;position:relative;text-align:center;}
+.edit-comp-card:hover{border-color:var(--border);}
+.edit-comp-card.selected{border-color:var(--accent);background:rgba(212,160,23,.06);}
+.edit-comp-card .ec-type{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:var(--text2);margin-bottom:3px;}
+.edit-comp-card .ec-amount{font-family:'JetBrains Mono',monospace;font-size:14px;color:var(--text);}
+.edit-partial-box{background:rgba(212,160,23,.06);border:1px solid rgba(212,160,23,.25);border-radius:8px;padding:14px;margin-top:4px;display:none;}
+.edit-partial-box.show{display:block;}
+.edit-partial-box p{font-size:11px;color:var(--text2);margin-bottom:8px;font-family:'Rajdhani',sans-serif;letter-spacing:.04em;text-transform:uppercase;font-weight:600;}
+.edit-partial-opts{display:flex;gap:8px;}
+.edit-partial-opt{flex:1;padding:8px 12px;border:2px solid var(--border);border-radius:6px;cursor:pointer;text-align:center;transition:all .15s;}
+.edit-partial-opt:hover{border-color:var(--text2);}
+.edit-partial-opt.selected{border-color:var(--accent);background:rgba(212,160,23,.08);}
+.edit-partial-opt .epo-label{font-family:'Rajdhani',sans-serif;font-size:11px;color:var(--text2);font-weight:600;text-transform:uppercase;}
+.edit-partial-opt .epo-amount{font-family:'JetBrains Mono',monospace;font-size:13px;color:var(--text);margin-top:2px;}
+.section-label{font-family:'Rajdhani',sans-serif;font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--accent);margin-bottom:10px;margin-top:4px;}
+/* TABLE */
+.table-toolbar{display:flex;gap:10px;align-items:center;margin-bottom:16px;flex-wrap:wrap;}
+.search-box{flex:1;min-width:200px;padding:9px 14px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);color:var(--text);font-family:'Source Serif 4',serif;font-size:14px;outline:none;}
+.search-box:focus{border-color:var(--accent);}
+.filter-select{padding:9px 12px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);color:var(--text2);font-family:'Rajdhani',sans-serif;font-size:13px;font-weight:600;letter-spacing:.04em;outline:none;cursor:pointer;}
+.filter-select:focus{border-color:var(--accent);}
+.data-table{width:100%;border-collapse:collapse;}
+.data-table thead tr{background:var(--surface2);border-bottom:2px solid var(--border);}
+.data-table th{font-family:'Rajdhani',sans-serif;font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--text2);padding:12px 14px;text-align:left;white-space:nowrap;}
+.data-table td{padding:10px 14px;font-size:13px;border-bottom:1px solid var(--border2);vertical-align:middle;}
+.data-table tbody tr{transition:background .1s;}
+.data-table tbody tr:hover{background:rgba(255,255,255,.025);}
+.mono{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--blue);}
+.badge{display:inline-block;font-family:'Rajdhani',sans-serif;font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:3px 8px;border-radius:3px;}
+.badge-b{background:rgba(88,166,255,.12);color:var(--blue);}
+.badge-h{background:rgba(212,160,23,.12);color:var(--accent);}
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:14px;margin-bottom:24px;}
+.stat-card{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:20px;}
+.stat-label{font-family:'Rajdhani',sans-serif;font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--text2);margin-bottom:8px;}
+.stat-value{font-family:'JetBrains Mono',monospace;font-size:24px;color:var(--text);}
+.stat-sub{font-size:12px;color:var(--text3);margin-top:4px;font-style:italic;}
+.spinner{width:32px;height:32px;border:3px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .7s linear infinite;margin:40px auto;}
+@keyframes spin{to{transform:rotate(360deg);}}
+.loading-overlay{display:none;position:fixed;inset:0;background:rgba(13,17,23,.8);z-index:999;align-items:center;justify-content:center;flex-direction:column;gap:16px;font-family:'Rajdhani',sans-serif;font-size:14px;color:var(--text2);letter-spacing:.06em;backdrop-filter:blur(2px);}
+.loading-overlay.show{display:flex;}
+.empty-state{text-align:center;padding:60px 20px;color:var(--text3);}
+.empty-state .es-icon{font-size:48px;margin-bottom:16px;}
+#toast-container{position:fixed;bottom:24px;right:24px;z-index:9999;display:flex;flex-direction:column;gap:8px;}
+.toast{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:12px 18px;font-family:'Rajdhani',sans-serif;font-size:14px;font-weight:600;letter-spacing:.04em;animation:slideUp .3s ease;display:flex;align-items:center;gap:10px;min-width:240px;box-shadow:var(--shadow);}
+@keyframes slideUp{from{opacity:0;transform:translateY(12px);}to{opacity:1;transform:none;}}
+.toast.t-ok{border-color:rgba(63,185,80,.4);color:var(--ok);}
+.toast.t-err{border-color:rgba(248,81,73,.4);color:var(--danger);}
+.toast.t-info{border-color:rgba(88,166,255,.4);color:var(--blue);}
+@media print{body{background:#fff!important;color:#000!important;font-family:Arial,sans-serif!important;}.app-header,.tab-bar,.no-print{display:none!important;}.card{border:1px solid #ccc!important;background:#fff!important;page-break-inside:avoid;}.data-table th{background:#f0f0f0!important;color:#000!important;}.data-table td{color:#000!important;border-color:#ddd!important;}.stat-card{border:1px solid #ccc!important;background:#fff!important;}.stat-value,.stat-label{color:#000!important;}.print-header{display:block!important;text-align:center;margin-bottom:24px;border-bottom:2px solid #000;padding-bottom:12px;}}
+.print-header{display:none;}
+::-webkit-scrollbar{width:6px;height:6px;}::-webkit-scrollbar-track{background:var(--bg);}::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px;}
+@media(max-width:600px){.form-grid,.form-grid.three,.edit-modal-grid,.edit-modal-grid.three{grid-template-columns:1fr;}.main{padding:20px 16px;}.comp-grid{grid-template-columns:1fr 1fr;}}
+</style>
+</head>
+<body>
+
+<!-- SIGN IN SCREEN -->
+<div id="signin-screen" style="display:flex;align-items:center;justify-content:center;min-height:100vh;">
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:52px 48px;max-width:440px;width:100%;text-align:center;box-shadow:var(--shadow);">
+    <span style="font-size:52px;display:block;margin-bottom:20px;animation:spin-slow 12s linear infinite;">🌀</span>
+    <h2 style="font-family:'Rajdhani',sans-serif;font-size:26px;font-weight:700;letter-spacing:.04em;color:var(--text);margin-bottom:6px;">Cyclone Ditwah</h2>
+    <p style="font-family:'Source Serif 4',serif;font-size:14px;color:var(--text2);margin-bottom:8px;font-style:italic;">Disaster Compensation Register</p>
+    <p style="font-size:12px;color:var(--text3);margin-bottom:36px;">Divisional Secretariat Horowpothana · Account Branch</p>
+    <button class="btn btn-primary" onclick="startSignIn()" id="signin-btn" style="width:100%;padding:14px;font-size:15px;letter-spacing:.08em;">
+      Sign in with Google →
+    </button>
+    <p id="signin-error" style="font-size:12px;color:var(--danger);margin-top:14px;display:none;"></p>
+    <p style="font-size:11px;color:var(--text3);margin-top:20px;">Only authorised DS Horowpothana staff can access this system.</p>
+  </div>
+</div>
+
+<!-- MAIN APP -->
+<div id="app" style="display:none;">
+  <header class="app-header">
+    <div class="emblem">DS</div>
+    <div class="header-title">
+      <h1>CYCLONE DITWAH — DISASTER COMPENSATION REGISTER</h1>
+      <span>Divisional Secretariat Horowpothana · Account Branch</span>
+    </div>
+    <div class="header-right">
+      <div class="user-badge"><div class="dot"></div><span id="user-name">Loading...</span></div>
+      <button class="btn btn-ghost btn-sm" onclick="signOut()">Sign Out</button>
+    </div>
+  </header>
+
+  <nav class="tab-bar">
+    <button class="tab-btn active" onclick="showTab('entry')" data-tab="entry">📝 New Entry</button>
+    <button class="tab-btn" onclick="showTab('records')" data-tab="records">📋 All Records</button>
+    <button class="tab-btn" onclick="showTab('reports')" data-tab="reports">📊 Reports</button>
+  </nav>
+
+  <div class="main">
+
+    <!-- NEW ENTRY TAB -->
+    <div class="page active" id="page-entry">
+      <div class="card">
+        <div class="card-title">🏛️ Applicant Information</div>
+        <div class="form-grid">
+          <div class="field">
+            <label>NIC Number <span class="req">*</span></label>
+            <input type="text" id="f-nic" placeholder="e.g. 892345678V or 198923456780" oninput="onNICInput()" autocomplete="off" style="text-transform:uppercase;"/>
+            <div class="nic-result" id="nic-result"></div>
+          </div>
+          <div class="field">
+            <label>Full Name <span class="req">*</span></label>
+            <input type="text" id="f-name" placeholder="Full legal name"/>
+          </div>
+          <div class="field">
+            <label>Grama Niladari Division <span class="req">*</span></label>
+            <select id="f-gn">
+              <option value="">— Select GN Division —</option>
+              <option>117 - Sinhala Walahaviddawewa</option><option>118 - Rasnakawewa</option>
+              <option>119 - Ihala Agunochchiya</option><option>120 - Walimuwapothana</option>
+              <option>121 - Nikawewa</option><option>122 - Mukkarawewa</option>
+              <option>123 - Thibiriath tawala</option><option>124 - Gammahegewewa</option>
+              <option>125 - Kalpe</option><option>126 - Wadigawewa</option>
+              <option>127 - Morakawa</option><option>128 - Horowpothana</option>
+              <option>129 - Kiwlekada</option><option>130 - Madawachchiyahandiya</option>
+              <option>131 - Nanumillawewa</option><option>132 - Vilewewa</option>
+              <option>133 - Maradankadawala</option><option>134 - Puhulewewa</option>
+              <option>135 - Morawewa</option><option>136 - Thirappankadawala</option>
+              <option>137 - Thawalanhalmillawewa</option><option>138 - Anaolondawa</option>
+              <option>139 - Weerasole</option><option>140 - Kapugollewa</option>
+              <option>141 - Pahaladiulwewa</option><option>142 - Dutuwewa</option>
+              <option>143 - Wagollakada</option><option>144 - Wahalkada D1</option>
+              <option>145 - Wahalkada D2</option><option>146 - Maradanmaduwa</option>
+              <option>147 - Rathmale</option><option>148 - Welangahaulpatha</option>
+              <option>149 - Parangiyawadiya</option><option>150 - Puliyankadawala</option>
+              <option>151 - Diyathithtawewa</option><option>152 - Nabadawewa</option>
+              <option>153 - Dakethipothana</option><option>154 - Dematawewa</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Application Reference No. <span class="opt">optional</span></label>
+            <input type="text" id="f-ref" placeholder="Application No."/>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">💰 Compensation Type</div>
+        <div class="comp-grid">
+          <label class="comp-card" onclick="selectComp(this,'BIZ_25K')"><input type="radio" name="comp" value="BIZ_25K"/><div class="comp-badge badge-business">Business</div><div class="comp-type">Business</div><div class="comp-amount">Rs. 25,000</div></label>
+          <label class="comp-card" onclick="selectComp(this,'BIZ_50K')"><input type="radio" name="comp" value="BIZ_50K"/><div class="comp-badge badge-business">Business</div><div class="comp-type">Business</div><div class="comp-amount">Rs. 50,000</div></label>
+          <label class="comp-card" onclick="selectComp(this,'BIZ_200K')"><input type="radio" name="comp" value="BIZ_200K"/><div class="comp-badge badge-business">Business</div><div class="comp-type">Business</div><div class="comp-amount">Rs. 200,000</div></label>
+          <label class="comp-card" onclick="selectComp(this,'HOUSE_HALF')"><input type="radio" name="comp" value="HOUSE_HALF"/><div class="comp-badge badge-house">House</div><div class="comp-type">Half Damage</div><div class="comp-amount">Rs. 500,000</div></label>
+          <label class="comp-card" onclick="selectComp(this,'HOUSE_FULL')"><input type="radio" name="comp" value="HOUSE_FULL"/><div class="comp-badge badge-house">House</div><div class="comp-type">Full Damage</div><div class="comp-amount">Rs. 2,000,000</div></label>
+        </div>
+        <div class="partial-box" id="partial-box">
+          <p>⚠ Half-Damage is paid in two instalments — select which payment:</p>
+          <div class="partial-opts">
+            <label class="partial-opt" onclick="selectPartial(this,'1')"><input type="radio" name="partial" value="1"/><div class="po-label">1st Payment</div><div class="po-amount">Rs. 300,000</div></label>
+            <label class="partial-opt" onclick="selectPartial(this,'2')"><input type="radio" name="partial" value="2"/><div class="po-label">2nd Payment</div><div class="po-amount">Rs. 200,000</div></label>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">🏦 Bank Details <span style="font-size:12px;font-weight:400;color:var(--text2);text-transform:none;letter-spacing:0;">(optional)</span></div>
+        <div class="form-grid three">
+          <div class="field"><label>Bank Code <span class="opt">optional</span></label><input type="text" id="f-bank" placeholder="e.g. 7010"/></div>
+          <div class="field"><label>Branch Code <span class="opt">optional</span></label><input type="text" id="f-branch" placeholder="e.g. 001"/></div>
+          <div class="field"><label>Account Number <span class="opt">optional</span></label><input type="text" id="f-acc" placeholder="e.g. 0072345678"/></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">📝 Remarks</div>
+        <div class="field"><input type="text" id="f-remarks" placeholder="Any additional notes (optional)"/></div>
+      </div>
+
+      <div class="form-actions">
+        <button class="btn btn-ghost" onclick="clearForm()">Clear Form</button>
+        <button class="btn btn-primary" onclick="submitEntry()">SUBMIT ENTRY →</button>
+      </div>
+    </div>
+
+    <!-- RECORDS TAB -->
+    <div class="page" id="page-records">
+      <div class="table-toolbar no-print">
+        <input class="search-box" type="text" id="rec-search" placeholder="Search by NIC, name, or GN division..." oninput="filterRecords()"/>
+        <select class="filter-select" id="rec-filter-type" onchange="filterRecords()">
+          <option value="">All Types</option>
+          <option value="BIZ_25K">Business Rs.25K</option>
+          <option value="BIZ_50K">Business Rs.50K</option>
+          <option value="BIZ_200K">Business Rs.200K</option>
+          <option value="HOUSE_HALF">Half-Damage House</option>
+          <option value="HOUSE_FULL">Full-Damage House</option>
+        </select>
+        <select class="filter-select" id="rec-filter-gn" onchange="filterRecords()">
+          <option value="">All GN Divisions</option>
+          <option value="117">117 - Sinhala Walahaviddawewa</option><option value="118">118 - Rasnakawewa</option>
+          <option value="119">119 - Ihala Agunochchiya</option><option value="120">120 - Walimuwapothana</option>
+          <option value="121">121 - Nikawewa</option><option value="122">122 - Mukkarawewa</option>
+          <option value="123">123 - Thibiriath tawala</option><option value="124">124 - Gammahegewewa</option>
+          <option value="125">125 - Kalpe</option><option value="126">126 - Wadigawewa</option>
+          <option value="127">127 - Morakawa</option><option value="128">128 - Horowpothana</option>
+          <option value="129">129 - Kiwlekada</option><option value="130">130 - Madawachchiyahandiya</option>
+          <option value="131">131 - Nanumillawewa</option><option value="132">132 - Vilewewa</option>
+          <option value="133">133 - Maradankadawala</option><option value="134">134 - Puhulewewa</option>
+          <option value="135">135 - Morawewa</option><option value="136">136 - Thirappankadawala</option>
+          <option value="137">137 - Thawalanhalmillawewa</option><option value="138">138 - Anaolondawa</option>
+          <option value="139">139 - Weerasole</option><option value="140">140 - Kapugollewa</option>
+          <option value="141">141 - Pahaladiulwewa</option><option value="142">142 - Dutuwewa</option>
+          <option value="143">143 - Wagollakada</option><option value="144">144 - Wahalkada D1</option>
+          <option value="145">145 - Wahalkada D2</option><option value="146">146 - Maradanmaduwa</option>
+          <option value="147">147 - Rathmale</option><option value="148">148 - Welangahaulpatha</option>
+          <option value="149">149 - Parangiyawadiya</option><option value="150">150 - Puliyankadawala</option>
+          <option value="151">151 - Diyathithtawewa</option><option value="152">152 - Nabadawewa</option>
+          <option value="153">153 - Dakethipothana</option><option value="154">154 - Dematawewa</option>
+        </select>
+        <button class="btn btn-ghost btn-sm" onclick="loadRecords()">🔄 Refresh</button>
+        <button class="btn btn-excel btn-sm" onclick="exportExcel('records')">📊 Excel</button>
+        <button class="btn btn-pdf btn-sm" onclick="window.print()">🖨 Print/PDF</button>
+      </div>
+      <div class="card" style="padding:0;overflow:hidden;">
+        <div id="records-container"><div class="spinner"></div></div>
+      </div>
+    </div>
+
+    <!-- REPORTS TAB -->
+    <div class="page" id="page-reports">
+      <div class="print-header" id="print-header">
+        <h2 style="font-size:20px;margin-bottom:4px;">DIVISIONAL SECRETARIAT HOROWPOTHANA</h2>
+        <h3 style="font-size:16px;font-weight:normal;">Cyclone Ditwah — Disaster Compensation Summary Report</h3>
+        <p style="font-size:12px;color:#666;margin-top:6px;">Generated: <span id="print-date"></span></p>
+      </div>
+      <div class="table-toolbar no-print" style="margin-bottom:20px;">
+        <span style="font-family:'Rajdhani',sans-serif;font-weight:600;font-size:13px;color:var(--text2);letter-spacing:.04em;">EXPORT:</span>
+        <button class="btn btn-excel btn-sm" onclick="exportExcel('summary')">📊 Summary Excel</button>
+        <button class="btn btn-excel btn-sm" onclick="exportExcel('gn')">📊 GN Division Excel</button>
+        <button class="btn btn-excel btn-sm" onclick="exportExcel('duplicates')">📊 Duplicates Excel</button>
+        <button class="btn btn-pdf btn-sm" onclick="printReport()">🖨 Print/PDF</button>
+        <button class="btn btn-ghost btn-sm" onclick="loadRecords()">🔄 Refresh</button>
+      </div>
+      <div class="stats-grid">
+        <div class="stat-card"><div class="stat-label">Total Payments</div><div class="stat-value" id="st-total">—</div></div>
+        <div class="stat-card"><div class="stat-label">Business Comp.</div><div class="stat-value" id="st-biz">—</div></div>
+        <div class="stat-card"><div class="stat-label">House (Half)</div><div class="stat-value" id="st-half">—</div></div>
+        <div class="stat-card"><div class="stat-label">House (Full)</div><div class="stat-value" id="st-full">—</div></div>
+        <div class="stat-card"><div class="stat-label">Total Amount</div><div class="stat-value" id="st-amount">—</div><div class="stat-sub">Rs.</div></div>
+      </div>
+      <div class="card"><div class="card-title">📊 Breakdown by Compensation Type</div><div id="breakdown-container"><div class="spinner"></div></div></div>
+      <div class="card"><div class="card-title">🗺 Breakdown by GN Division</div><div id="gn-breakdown-container"><div class="spinner"></div></div></div>
+      <div class="card"><div class="card-title">⚠ Duplicate / Flagged Entries</div><div id="dup-report-container"><div class="spinner"></div></div></div>
+    </div>
+
+  </div>
+</div>
+
+<!-- DUPLICATE MODAL -->
+<div class="modal-overlay" id="dup-modal">
+  <div class="modal modal-danger">
+    <h3>⚠ Duplicate Payment Detected!</h3>
+    <p class="sub">This NIC already has an existing payment for the same compensation type. Review carefully before proceeding.</p>
+    <table class="dup-table"><thead><tr><th>NIC</th><th>Name</th><th>Type</th><th>Payment</th><th>Date</th></tr></thead><tbody id="dup-modal-body"></tbody></table>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeDupModal()">Cancel — Do Not Save</button>
+      <button class="btn btn-danger" onclick="forceSubmit()">⚠ Override &amp; Save Anyway</button>
+    </div>
+  </div>
+</div>
+
+<!-- EDIT MODAL -->
+<div class="modal-overlay" id="edit-modal">
+  <div class="modal modal-blue">
+    <h3>✏️ Edit Entry</h3>
+    <p class="sub">Editing row <strong id="edit-row-label"></strong>. Changes will be saved back to Google Sheets.</p>
+
+    <div class="section-label">Applicant Information</div>
+    <div class="edit-modal-grid">
+      <div class="field"><label>NIC Number <span class="req">*</span></label><input type="text" id="e-nic" style="text-transform:uppercase;"/></div>
+      <div class="field"><label>Full Name <span class="req">*</span></label><input type="text" id="e-name"/></div>
+      <div class="field"><label>GN Division <span class="req">*</span></label>
+        <select id="e-gn">
+          <option value="">— Select —</option>
+          <option>117 - Sinhala Walahaviddawewa</option><option>118 - Rasnakawewa</option>
+          <option>119 - Ihala Agunochchiya</option><option>120 - Walimuwapothana</option>
+          <option>121 - Nikawewa</option><option>122 - Mukkarawewa</option>
+          <option>123 - Thibiriath tawala</option><option>124 - Gammahegewewa</option>
+          <option>125 - Kalpe</option><option>126 - Wadigawewa</option>
+          <option>127 - Morakawa</option><option>128 - Horowpothana</option>
+          <option>129 - Kiwlekada</option><option>130 - Madawachchiyahandiya</option>
+          <option>131 - Nanumillawewa</option><option>132 - Vilewewa</option>
+          <option>133 - Maradankadawala</option><option>134 - Puhulewewa</option>
+          <option>135 - Morawewa</option><option>136 - Thirappankadawala</option>
+          <option>137 - Thawalanhalmillawewa</option><option>138 - Anaolondawa</option>
+          <option>139 - Weerasole</option><option>140 - Kapugollewa</option>
+          <option>141 - Pahaladiulwewa</option><option>142 - Dutuwewa</option>
+          <option>143 - Wagollakada</option><option>144 - Wahalkada D1</option>
+          <option>145 - Wahalkada D2</option><option>146 - Maradanmaduwa</option>
+          <option>147 - Rathmale</option><option>148 - Welangahaulpatha</option>
+          <option>149 - Parangiyawadiya</option><option>150 - Puliyankadawala</option>
+          <option>151 - Diyathithtawewa</option><option>152 - Nabadawewa</option>
+          <option>153 - Dakethipothana</option><option>154 - Dematawewa</option>
+        </select>
+      </div>
+      <div class="field"><label>App. Reference <span class="opt">optional</span></label><input type="text" id="e-ref"/></div>
+    </div>
+
+    <div class="section-label">Compensation Type</div>
+    <div class="edit-comp-grid" id="edit-comp-grid">
+      <div class="edit-comp-card" onclick="editSelectComp(this,'BIZ_25K')"><div class="comp-badge badge-business" style="position:static;display:inline-block;margin-bottom:4px;">Biz</div><div class="ec-type">Business</div><div class="ec-amount">Rs.25,000</div></div>
+      <div class="edit-comp-card" onclick="editSelectComp(this,'BIZ_50K')"><div class="comp-badge badge-business" style="position:static;display:inline-block;margin-bottom:4px;">Biz</div><div class="ec-type">Business</div><div class="ec-amount">Rs.50,000</div></div>
+      <div class="edit-comp-card" onclick="editSelectComp(this,'BIZ_200K')"><div class="comp-badge badge-business" style="position:static;display:inline-block;margin-bottom:4px;">Biz</div><div class="ec-type">Business</div><div class="ec-amount">Rs.200,000</div></div>
+      <div class="edit-comp-card" onclick="editSelectComp(this,'HOUSE_HALF')"><div class="comp-badge badge-house" style="position:static;display:inline-block;margin-bottom:4px;">House</div><div class="ec-type">Half Damage</div><div class="ec-amount">Rs.500,000</div></div>
+      <div class="edit-comp-card" onclick="editSelectComp(this,'HOUSE_FULL')"><div class="comp-badge badge-house" style="position:static;display:inline-block;margin-bottom:4px;">House</div><div class="ec-type">Full Damage</div><div class="ec-amount">Rs.2,000,000</div></div>
+    </div>
+    <div class="edit-partial-box" id="edit-partial-box">
+      <p>Select payment instalment:</p>
+      <div class="edit-partial-opts">
+        <div class="edit-partial-opt" onclick="editSelectPartial(this,'1')"><div class="epo-label">1st Payment</div><div class="epo-amount">Rs.300,000</div></div>
+        <div class="edit-partial-opt" onclick="editSelectPartial(this,'2')"><div class="epo-label">2nd Payment</div><div class="epo-amount">Rs.200,000</div></div>
+      </div>
+    </div>
+
+    <hr class="modal-divider"/>
+    <div class="section-label">Bank Details <span style="font-weight:400;text-transform:none;font-size:11px;letter-spacing:0;">(optional)</span></div>
+    <div class="edit-modal-grid three">
+      <div class="field"><label>Bank Code</label><input type="text" id="e-bank" placeholder="e.g. 7010"/></div>
+      <div class="field"><label>Branch Code</label><input type="text" id="e-branch" placeholder="e.g. 001"/></div>
+      <div class="field"><label>Account No.</label><input type="text" id="e-acc" placeholder="e.g. 0072345678"/></div>
+    </div>
+
+    <div class="field" style="margin-top:14px;"><label>Remarks</label><input type="text" id="e-remarks"/></div>
+
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeEditModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="saveEdit()">SAVE CHANGES →</button>
+    </div>
+  </div>
+</div>
+
+<div class="loading-overlay" id="loading"><div class="spinner"></div><span id="loading-msg">PROCESSING...</span></div>
+<div id="toast-container"></div>
+
+<script>
+// ── HARDCODED CONFIG — edit these two values when deploying ──
+const CLIENT_ID   = '249673442023-7ppsgcd5sn4pg64gpvo91qj6k32dfkke.apps.googleusercontent.com';   // <-- paste your Client ID here
+const SHEET_ID    = '18q1y-shh8dnioHdMxz8TW9t0x_Kh1S1B-HTLVQEz_u8';           // <-- paste your Sheet ID here
+// ─────────────────────────────────────────────────────────────
+const GN_OPTIONS=['117 - Sinhala Walahaviddawewa','118 - Rasnakawewa','119 - Ihala Agunochchiya','120 - Walimuwapothana','121 - Nikawewa','122 - Mukkarawewa','123 - Thibiriath tawala','124 - Gammahegewewa','125 - Kalpe','126 - Wadigawewa','127 - Morakawa','128 - Horowpothana','129 - Kiwlekada','130 - Madawachchiyahandiya','131 - Nanumillawewa','132 - Vilewewa','133 - Maradankadawala','134 - Puhulewewa','135 - Morawewa','136 - Thirappankadawala','137 - Thawalanhalmillawewa','138 - Anaolondawa','139 - Weerasole','140 - Kapugollewa','141 - Pahaladiulwewa','142 - Dutuwewa','143 - Wagollakada','144 - Wahalkada D1','145 - Wahalkada D2','146 - Maradanmaduwa','147 - Rathmale','148 - Welangahaulpatha','149 - Parangiyawadiya','150 - Puliyankadawala','151 - Diyathithtawewa','152 - Nabadawewa','153 - Dakethipothana','154 - Dematawewa'];
+const COMP_META={
+  BIZ_25K:{label:'Business Rs.25,000',amount:25000,cat:'Business',partial:false},
+  BIZ_50K:{label:'Business Rs.50,000',amount:50000,cat:'Business',partial:false},
+  BIZ_200K:{label:'Business Rs.200,000',amount:200000,cat:'Business',partial:false},
+  HOUSE_HALF:{label:'Half-Damage House Rs.500K',amount:500000,cat:'House',partial:true,payments:{'1':{label:'1st Payment',amount:300000},'2':{label:'2nd Payment',amount:200000}}},
+  HOUSE_FULL:{label:'Full-Damage House Rs.2Mn',amount:2000000,cat:'House',partial:false},
+};
+const SHEET_NAME='Records';
+let cfg={},tokenClient=null,accessToken=null,allRecords=[],pendingEntry=null;
+let selectedComp=null,selectedPartial=null,userEmail='';
+let editRowIndex=null,editSelectedComp=null,editSelectedPartial=null;
+
+window.onload=()=>{
+  cfg={clientId:CLIENT_ID, sheetId:SHEET_ID};
+  // GIS library loads async — just show sign-in screen, user clicks button
+};
+
+function startSignIn(){
+  const btn=document.getElementById('signin-btn');
+  btn.textContent='Signing in...'; btn.disabled=true;
+  const tryInit=()=>{
+    if(!window.google||!window.google.accounts){setTimeout(tryInit,200);return;}
+    doGoogleAuth();
+  };
+  tryInit();
+}
+
+// saveConfig removed — config is hardcoded
+
+function doGoogleAuth(){
+  tokenClient=google.accounts.oauth2.initTokenClient({
+    client_id:cfg.clientId,
+    scope:'https://www.googleapis.com/auth/spreadsheets https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/userinfo.email',
+    callback:(resp)=>{
+      if(resp.error){
+        const errEl=document.getElementById('signin-error');
+        errEl.textContent='Sign-in failed: '+resp.error+'. Make sure your Google account is authorised as a test user.';
+        errEl.style.display='block';
+        const btn=document.getElementById('signin-btn');btn.textContent='Sign in with Google →';btn.disabled=false;
+        return;
+      }
+      accessToken=resp.access_token;
+      fetch('https://www.googleapis.com/oauth2/v3/userinfo',{headers:{Authorization:'Bearer '+accessToken}})
+        .then(r=>r.json()).then(u=>{userEmail=u.email||'Staff';document.getElementById('user-name').textContent=u.name||userEmail;showApp();ensureSheetHeaders();loadRecords();})
+        .catch(()=>{userEmail='Staff';showApp();ensureSheetHeaders();loadRecords();});
+    }
+  });
+  tokenClient.requestAccessToken({prompt:'select_account'});
+}
+
+function showApp(){document.getElementById('signin-screen').style.display='none';document.getElementById('app').style.display='block';}
+function signOut(){if(accessToken)google.accounts.oauth2.revoke(accessToken,()=>{});accessToken=null;const btn=document.getElementById('signin-btn');btn.textContent='Sign in with Google →';btn.disabled=false;document.getElementById('signin-error').style.display='none';document.getElementById('signin-screen').style.display='flex';document.getElementById('app').style.display='none';}
+
+async function sheetsGet(range){
+  const url=`https://sheets.googleapis.com/v4/spreadsheets/${cfg.sheetId}/values/${encodeURIComponent(range)}`;
+  const r=await fetch(url,{headers:{Authorization:'Bearer '+accessToken}});
+  if(!r.ok){const e=await r.json();throw new Error(e.error?.message||'Sheets error');}
+  return r.json();
+}
+async function sheetsAppend(values){
+  const url=`https://sheets.googleapis.com/v4/spreadsheets/${cfg.sheetId}/values/${encodeURIComponent(SHEET_NAME)}:append?valueInputOption=USER_ENTERED&insertDataOption=INSERT_ROWS`;
+  const r=await fetch(url,{method:'POST',headers:{Authorization:'Bearer '+accessToken,'Content-Type':'application/json'},body:JSON.stringify({values})});
+  if(!r.ok){const e=await r.json();throw new Error(e.error?.message||'Sheets error');}
+  return r.json();
+}
+async function sheetsUpdate(rowNum,values){
+  // rowNum is the actual sheet row number (1-indexed, row 1 = header)
+  const range=`${SHEET_NAME}!A${rowNum}:N${rowNum}`;
+  const url=`https://sheets.googleapis.com/v4/spreadsheets/${cfg.sheetId}/values/${encodeURIComponent(range)}?valueInputOption=USER_ENTERED`;
+  const r=await fetch(url,{method:'PUT',headers:{Authorization:'Bearer '+accessToken,'Content-Type':'application/json'},body:JSON.stringify({values:[values]})});
+  if(!r.ok){const e=await r.json();throw new Error(e.error?.message||'Sheets update error');}
+  return r.json();
+}
+
+async function ensureSheetHeaders(){
+  try{const d=await sheetsGet(`${SHEET_NAME}!A1:N1`);if(!d.values||!d.values[0]||d.values[0].length<5){await sheetsAppend([['Timestamp','Entered By','NIC','Name','GN Division','App. Ref.','Comp. Type','Payment Instalment','Amount (Rs.)','Bank Code','Branch Code','Account No.','Remarks','Flag']]);}}catch(e){}
+}
+
+async function loadRecords(){
+  try{
+    const d=await sheetsGet(`${SHEET_NAME}!A2:N`);
+    allRecords=(d.values||[]).filter(r=>r.length>2).map((r,i)=>({
+      row:i+2,timestamp:r[0]||'',enteredBy:r[1]||'',nic:(r[2]||'').toUpperCase(),
+      name:r[3]||'',gn:r[4]||'',appRef:r[5]||'',compType:r[6]||'',payment:r[7]||'',
+      amount:parseFloat(r[8])||0,bankCode:r[9]||'',branchCode:r[10]||'',
+      accNo:r[11]||'',remarks:r[12]||'',flag:r[13]||''
+    }));
+    renderRecordsTable(allRecords);renderReports();
+  }catch(e){toast('Failed to load: '+e.message,'err');renderRecordsTable([]);}
+}
+
+let nicCheckTimer=null;
+function onNICInput(){
+  clearTimeout(nicCheckTimer);
+  const nic=document.getElementById('f-nic').value.trim().toUpperCase();
+  const el=document.getElementById('nic-result');
+  if(nic.length<9){el.className='nic-result';return;}
+  nicCheckTimer=setTimeout(()=>{
+    const matches=allRecords.filter(r=>r.nic===nic);
+    if(matches.length>0){el.className='nic-result found';const list=matches.map(m=>`${COMP_META[m.compType]?.label||m.compType}${m.payment?' ('+m.payment+')':''}`).join(', ');el.textContent=`⚠ ${matches.length} existing record(s): ${list}`;}
+    else{el.className='nic-result clear';el.textContent='✓ NIC not found — no existing records';}
+  },400);
+}
+
+function selectComp(card,val){document.querySelectorAll('.comp-card').forEach(c=>c.classList.remove('selected'));card.classList.add('selected');selectedComp=val;selectedPartial=null;document.querySelectorAll('.partial-opt').forEach(o=>o.classList.remove('selected'));document.getElementById('partial-box').classList.toggle('show',val==='HOUSE_HALF');}
+function selectPartial(el,val){document.querySelectorAll('.partial-opt').forEach(o=>o.classList.remove('selected'));el.classList.add('selected');selectedPartial=val;}
+
+function submitEntry(){
+  const nic=document.getElementById('f-nic').value.trim().toUpperCase();
+  const name=document.getElementById('f-name').value.trim();
+  const gn=document.getElementById('f-gn').value;
+  if(!nic){toast('NIC number is required.','err');return;}
+  if(!name){toast('Applicant name is required.','err');return;}
+  if(!gn){toast('Please select a GN Division.','err');return;}
+  if(!selectedComp){toast('Please select a compensation type.','err');return;}
+  if(selectedComp==='HOUSE_HALF'&&!selectedPartial){toast('Please select 1st or 2nd payment.','err');return;}
+  const meta=COMP_META[selectedComp];
+  let paymentLabel='',amount=meta.amount;
+  if(selectedComp==='HOUSE_HALF'){paymentLabel=meta.payments[selectedPartial].label;amount=meta.payments[selectedPartial].amount;}
+  pendingEntry={timestamp:new Date().toLocaleString('en-LK'),enteredBy:userEmail,nic,name,gn,appRef:document.getElementById('f-ref').value.trim(),compType:selectedComp,payment:paymentLabel,amount,bankCode:document.getElementById('f-bank').value.trim(),branchCode:document.getElementById('f-branch').value.trim(),accNo:document.getElementById('f-acc').value.trim(),remarks:document.getElementById('f-remarks').value.trim(),flag:''};
+  const dups=findDuplicates(pendingEntry);
+  if(dups.length>0)showDupModal(dups);else saveEntry(pendingEntry);
+}
+
+function findDuplicates(entry,excludeRow=null){
+  return allRecords.filter(r=>{
+    if(excludeRow&&r.row===excludeRow)return false;
+    if(r.nic!==entry.nic)return false;
+    if(r.compType===entry.compType){if(entry.compType==='HOUSE_HALF')return r.payment===entry.payment;return true;}
+    return false;
+  });
+}
+
+function showDupModal(dups){
+  document.getElementById('dup-modal-body').innerHTML=dups.map(d=>`<tr><td>${d.nic}</td><td>${d.name}</td><td>${COMP_META[d.compType]?.label||d.compType}</td><td>${d.payment||'Lump Sum'}</td><td>${d.timestamp}</td></tr>`).join('');
+  document.getElementById('dup-modal').classList.add('show');
+}
+function closeDupModal(){document.getElementById('dup-modal').classList.remove('show');pendingEntry=null;}
+function forceSubmit(){if(!pendingEntry)return;pendingEntry.flag='DUPLICATE_OVERRIDE';document.getElementById('dup-modal').classList.remove('show');saveEntry(pendingEntry);}
+
+async function saveEntry(entry){
+  showLoading('SAVING TO GOOGLE SHEETS...');
+  try{
+    await sheetsAppend([[entry.timestamp,entry.enteredBy,entry.nic,entry.name,entry.gn,entry.appRef,entry.compType,entry.payment,entry.amount,entry.bankCode,entry.branchCode,entry.accNo,entry.remarks,entry.flag]]);
+    hideLoading();toast('Entry saved successfully!','ok');clearForm();loadRecords();pendingEntry=null;
+  }catch(e){hideLoading();toast('Save failed: '+e.message,'err');}
+}
+
+function clearForm(){
+  ['f-nic','f-name','f-ref','f-bank','f-branch','f-acc','f-remarks'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('f-gn').value='';
+  document.querySelectorAll('.comp-card').forEach(c=>c.classList.remove('selected'));
+  document.querySelectorAll('.partial-opt').forEach(o=>o.classList.remove('selected'));
+  document.getElementById('partial-box').classList.remove('show');
+  document.getElementById('nic-result').className='nic-result';
+  selectedComp=null;selectedPartial=null;
+}
+
+// ─── EDIT ────────────────────────────────────────────────────
+function openEditModal(rowIndex){
+  const r=allRecords.find(x=>x.row===rowIndex);
+  if(!r){toast('Record not found.','err');return;}
+  editRowIndex=rowIndex;
+  editSelectedComp=r.compType;
+  editSelectedPartial=r.payment==='1st Payment'?'1':r.payment==='2nd Payment'?'2':null;
+
+  document.getElementById('edit-row-label').textContent=`#${allRecords.indexOf(r)+1} (Sheet row ${rowIndex})`;
+  document.getElementById('e-nic').value=r.nic;
+  document.getElementById('e-name').value=r.name;
+  document.getElementById('e-ref').value=r.appRef;
+  document.getElementById('e-bank').value=r.bankCode;
+  document.getElementById('e-branch').value=r.branchCode;
+  document.getElementById('e-acc').value=r.accNo;
+  document.getElementById('e-remarks').value=r.remarks;
+
+  // Set GN dropdown
+  const gnSel=document.getElementById('e-gn');
+  gnSel.value='';
+  for(let opt of gnSel.options){if(opt.value===r.gn||opt.text===r.gn){gnSel.value=opt.value;break;}}
+
+  // Set comp type cards
+  document.querySelectorAll('.edit-comp-card').forEach(c=>c.classList.remove('selected'));
+  const compCards=document.querySelectorAll('.edit-comp-card');
+  const compVals=['BIZ_25K','BIZ_50K','BIZ_200K','HOUSE_HALF','HOUSE_FULL'];
+  compVals.forEach((v,i)=>{if(v===r.compType)compCards[i].classList.add('selected');});
+
+  // Partial
+  document.getElementById('edit-partial-box').classList.toggle('show',r.compType==='HOUSE_HALF');
+  document.querySelectorAll('.edit-partial-opt').forEach(o=>o.classList.remove('selected'));
+  if(editSelectedPartial){
+    const opts=document.querySelectorAll('.edit-partial-opt');
+    if(editSelectedPartial==='1')opts[0].classList.add('selected');
+    else if(editSelectedPartial==='2')opts[1].classList.add('selected');
+  }
+
+  document.getElementById('edit-modal').classList.add('show');
+}
+
+function closeEditModal(){document.getElementById('edit-modal').classList.remove('show');editRowIndex=null;editSelectedComp=null;editSelectedPartial=null;}
+
+function editSelectComp(card,val){
+  document.querySelectorAll('.edit-comp-card').forEach(c=>c.classList.remove('selected'));
+  card.classList.add('selected');editSelectedComp=val;editSelectedPartial=null;
+  document.querySelectorAll('.edit-partial-opt').forEach(o=>o.classList.remove('selected'));
+  document.getElementById('edit-partial-box').classList.toggle('show',val==='HOUSE_HALF');
+}
+function editSelectPartial(el,val){document.querySelectorAll('.edit-partial-opt').forEach(o=>o.classList.remove('selected'));el.classList.add('selected');editSelectedPartial=val;}
+
+async function saveEdit(){
+  const nic=document.getElementById('e-nic').value.trim().toUpperCase();
+  const name=document.getElementById('e-name').value.trim();
+  const gn=document.getElementById('e-gn').value;
+  if(!nic){toast('NIC is required.','err');return;}
+  if(!name){toast('Name is required.','err');return;}
+  if(!gn){toast('Please select a GN Division.','err');return;}
+  if(!editSelectedComp){toast('Please select a compensation type.','err');return;}
+  if(editSelectedComp==='HOUSE_HALF'&&!editSelectedPartial){toast('Please select 1st or 2nd payment.','err');return;}
+
+  const meta=COMP_META[editSelectedComp];
+  let paymentLabel='',amount=meta.amount;
+  if(editSelectedComp==='HOUSE_HALF'){paymentLabel=meta.payments[editSelectedPartial].label;amount=meta.payments[editSelectedPartial].amount;}
+
+  // Check duplicates (exclude current row)
+  const checkEntry={nic,compType:editSelectedComp,payment:paymentLabel};
+  const dups=findDuplicates(checkEntry,editRowIndex);
+  if(dups.length>0){
+    if(!confirm(`Warning: Another record with NIC ${nic} and same compensation type already exists.\n\nProceed with saving anyway?`))return;
+  }
+
+  // Keep original timestamp and enteredBy, update rest
+  const originalRecord=allRecords.find(x=>x.row===editRowIndex);
+  const updatedFlag=dups.length>0?'DUPLICATE_OVERRIDE':(originalRecord?.flag||'');
+
+  showLoading('UPDATING GOOGLE SHEETS...');
+  try{
+    await sheetsUpdate(editRowIndex,[
+      originalRecord.timestamp,            // A - keep original timestamp
+      originalRecord.enteredBy,            // B - keep original entered by
+      nic,name,gn,                          // C D E
+      document.getElementById('e-ref').value.trim(), // F
+      editSelectedComp,paymentLabel,amount, // G H I
+      document.getElementById('e-bank').value.trim(),   // J
+      document.getElementById('e-branch').value.trim(), // K
+      document.getElementById('e-acc').value.trim(),    // L
+      document.getElementById('e-remarks').value.trim(),// M
+      updatedFlag                           // N
+    ]);
+    // Append an audit note row
+    await sheetsAppend([[
+      new Date().toLocaleString('en-LK'),
+      userEmail+' [EDIT]',
+      nic,'— edited row '+editRowIndex+' —','','','','','','','','','',''
+    ]]);
+    hideLoading();closeEditModal();toast('Entry updated successfully!','ok');loadRecords();
+  }catch(e){hideLoading();toast('Update failed: '+e.message,'err');}
+}
+
+// ─── RECORDS TABLE ───────────────────────────────────────────
+function filterRecords(){
+  const q=document.getElementById('rec-search').value.trim().toLowerCase();
+  const typ=document.getElementById('rec-filter-type').value;
+  const gn=document.getElementById('rec-filter-gn').value;
+  let f=allRecords;
+  if(q)f=f.filter(r=>r.nic.toLowerCase().includes(q)||r.name.toLowerCase().includes(q)||r.gn.toLowerCase().includes(q));
+  if(typ)f=f.filter(r=>r.compType===typ);
+  if(gn)f=f.filter(r=>r.gn.startsWith(gn));
+  renderRecordsTable(f);
+}
+
+function renderRecordsTable(records){
+  const c=document.getElementById('records-container');
+  if(!records.length){c.innerHTML='<div class="empty-state"><div class="es-icon">📭</div><p>No records found.</p></div>';return;}
+  c.innerHTML=`<table class="data-table">
+    <thead><tr><th>#</th><th>NIC</th><th>Name</th><th>GN Division</th><th>Type</th><th>Payment</th><th>Amount (Rs.)</th><th>Bank/Acc</th><th>Entered By</th><th>Date</th><th>Flag</th><th class="no-print">Edit</th></tr></thead>
+    <tbody>${records.map((r,i)=>`
+      <tr style="${r.flag?'background:rgba(248,81,73,.05);':''}">
+        <td style="color:var(--text3);font-size:11px;">${i+1}</td>
+        <td class="mono">${r.nic}</td>
+        <td>${r.name}</td>
+        <td style="font-size:12px;">${r.gn}</td>
+        <td><span class="badge ${r.compType?.startsWith('BIZ')?'badge-b':'badge-h'}">${COMP_META[r.compType]?.cat||r.compType}</span><br/><span style="font-size:11px;color:var(--text2);">${COMP_META[r.compType]?.label||''}</span></td>
+        <td style="font-size:12px;color:var(--text2);">${r.payment||'—'}</td>
+        <td style="font-family:'JetBrains Mono',monospace;text-align:right;">${r.amount.toLocaleString('en-LK')}</td>
+        <td style="font-size:11px;font-family:'JetBrains Mono',monospace;color:var(--text3);">${r.bankCode?r.bankCode+'/'+r.branchCode+' '+r.accNo:'—'}</td>
+        <td style="font-size:11px;color:var(--text3);">${r.enteredBy}</td>
+        <td style="font-size:11px;color:var(--text3);white-space:nowrap;">${r.timestamp}</td>
+        <td>${r.flag?'<span style="color:var(--danger);font-size:11px;font-family:Rajdhani;font-weight:700;">⚠ DUP</span>':'<span style="color:var(--ok);font-size:11px;">✓</span>'}</td>
+        <td class="no-print"><button class="btn btn-edit" onclick="openEditModal(${r.row})">✏ Edit</button></td>
+      </tr>`).join('')}
+    </tbody></table>`;
+}
+
+// ─── REPORTS ─────────────────────────────────────────────────
+function renderReports(){
+  const records=allRecords;
+  const biz=records.filter(r=>r.compType?.startsWith('BIZ')).length;
+  const half=records.filter(r=>r.compType==='HOUSE_HALF').length;
+  const full=records.filter(r=>r.compType==='HOUSE_FULL').length;
+  const amt=records.reduce((s,r)=>s+r.amount,0);
+  document.getElementById('st-total').textContent=records.length;
+  document.getElementById('st-biz').textContent=biz;
+  document.getElementById('st-half').textContent=half;
+  document.getElementById('st-full').textContent=full;
+  document.getElementById('st-amount').textContent=amt.toLocaleString('en-LK');
+
+  const breakdown={};
+  records.forEach(r=>{const key=r.compType+(r.payment?'::'+r.payment:'');if(!breakdown[key])breakdown[key]={label:(COMP_META[r.compType]?.label||r.compType)+(r.payment?' — '+r.payment:''),count:0,total:0};breakdown[key].count++;breakdown[key].total+=r.amount;});
+  const bdEl=document.getElementById('breakdown-container');
+  const rows=Object.values(breakdown).sort((a,b)=>b.total-a.total);
+  bdEl.innerHTML=rows.length?`<table class="data-table"><thead><tr><th>Compensation Type</th><th>No. of Payments</th><th>Total Amount (Rs.)</th></tr></thead><tbody>${rows.map(r=>`<tr><td>${r.label}</td><td style="font-family:'JetBrains Mono',monospace;">${r.count}</td><td style="font-family:'JetBrains Mono',monospace;text-align:right;">${r.total.toLocaleString('en-LK')}</td></tr>`).join('')}<tr style="background:var(--surface2);font-weight:600;"><td style="font-family:'Rajdhani',sans-serif;letter-spacing:.04em;">GRAND TOTAL</td><td style="font-family:'JetBrains Mono',monospace;">${records.length}</td><td style="font-family:'JetBrains Mono',monospace;text-align:right;">${amt.toLocaleString('en-LK')}</td></tr></tbody></table>`:'<div class="empty-state" style="padding:30px;"><p>No data yet.</p></div>';
+
+  const gnMap={};records.forEach(r=>{if(!gnMap[r.gn])gnMap[r.gn]={gn:r.gn,count:0,total:0};gnMap[r.gn].count++;gnMap[r.gn].total+=r.amount;});
+  const gnRows=Object.values(gnMap).sort((a,b)=>a.gn.localeCompare(b.gn));
+  document.getElementById('gn-breakdown-container').innerHTML=gnRows.length?`<table class="data-table"><thead><tr><th>GN Division</th><th>No. of Payments</th><th>Total Amount (Rs.)</th></tr></thead><tbody>${gnRows.map(r=>`<tr><td>${r.gn}</td><td style="font-family:'JetBrains Mono',monospace;">${r.count}</td><td style="font-family:'JetBrains Mono',monospace;text-align:right;">${r.total.toLocaleString('en-LK')}</td></tr>`).join('')}<tr style="background:var(--surface2);font-weight:600;"><td style="font-family:'Rajdhani',sans-serif;letter-spacing:.04em;">GRAND TOTAL</td><td style="font-family:'JetBrains Mono',monospace;">${records.length}</td><td style="font-family:'JetBrains Mono',monospace;text-align:right;">${amt.toLocaleString('en-LK')}</td></tr></tbody></table>`:'<div class="empty-state" style="padding:30px;"><p>No data yet.</p></div>';
+
+  const nicMap={};records.forEach(r=>{const key=r.compType+(r.payment?'::'+r.payment:'')+'::'+r.nic;if(!nicMap[key])nicMap[key]=[];nicMap[key].push(r);});
+  const dups=Object.values(nicMap).filter(g=>g.length>1);
+  document.getElementById('dup-report-container').innerHTML=!dups.length
+    ?'<div class="alert alert-ok"><span class="alert-icon">✅</span><div class="alert-body"><div class="alert-title">No duplicates detected</div><div class="alert-detail">All NIC records are unique per compensation type and payment instalment.</div></div></div>'
+    :`<div class="alert alert-danger" style="margin-bottom:16px;"><span class="alert-icon">⚠</span><div class="alert-body"><div class="alert-title">${dups.length} duplicate group(s) found</div></div></div><table class="data-table"><thead><tr><th>NIC</th><th>Name</th><th>GN Division</th><th>Type</th><th>Count</th><th class="no-print">Action</th></tr></thead><tbody>${dups.map(g=>`<tr><td class="mono">${g[0].nic}</td><td>${g[0].name}</td><td>${g[0].gn}</td><td>${COMP_META[g[0].compType]?.label||g[0].compType}${g[0].payment?' — '+g[0].payment:''}</td><td style="color:var(--danger);font-weight:600;font-family:'JetBrains Mono',monospace;">${g.length}</td><td class="no-print"><button class="btn btn-edit btn-sm" onclick="showTab('records');setTimeout(()=>{document.getElementById('rec-search').value='${g[0].nic}';filterRecords();},100)">View</button></td></tr>`).join('')}</tbody></table>`;
+}
+
+// ─── EXCEL ───────────────────────────────────────────────────
+function exportExcel(type){
+  if(typeof XLSX==='undefined'){toast('SheetJS not loaded yet.','err');return;}
+  const wb=XLSX.utils.book_new();const dateStr=new Date().toISOString().slice(0,10);
+  if(type==='records'){
+    const q=document.getElementById('rec-search').value.trim().toLowerCase();const typ=document.getElementById('rec-filter-type').value;const gn=document.getElementById('rec-filter-gn').value;
+    let f=allRecords;if(q)f=f.filter(r=>r.nic.toLowerCase().includes(q)||r.name.toLowerCase().includes(q)||r.gn.toLowerCase().includes(q));if(typ)f=f.filter(r=>r.compType===typ);if(gn)f=f.filter(r=>r.gn.startsWith(gn));
+    const data=[['#','Timestamp','Entered By','NIC','Name','GN Division','App. Ref.','Comp. Type','Payment','Amount (Rs.)','Bank Code','Branch Code','Account No.','Remarks','Flag'],...f.map((r,i)=>[i+1,r.timestamp,r.enteredBy,r.nic,r.name,r.gn,r.appRef,COMP_META[r.compType]?.label||r.compType,r.payment||'',r.amount,r.bankCode,r.branchCode,r.accNo,r.remarks,r.flag])];
+    const ws=XLSX.utils.aoa_to_sheet(data);ws['!cols']=[{wch:4},{wch:20},{wch:22},{wch:15},{wch:28},{wch:32},{wch:12},{wch:30},{wch:14},{wch:14},{wch:10},{wch:10},{wch:14},{wch:20},{wch:8}];
+    XLSX.utils.book_append_sheet(wb,ws,'All Records');XLSX.writeFile(wb,`DitwahRecords_${dateStr}.xlsx`);
+  }else if(type==='summary'){
+    const breakdown={};allRecords.forEach(r=>{const key=r.compType+(r.payment?'::'+r.payment:'');if(!breakdown[key])breakdown[key]={label:(COMP_META[r.compType]?.label||r.compType)+(r.payment?' — '+r.payment:''),count:0,total:0};breakdown[key].count++;breakdown[key].total+=r.amount;});
+    const total=allRecords.reduce((s,r)=>s+r.amount,0);
+    const sd=[['DIVISIONAL SECRETARIAT HOROWPOTHANA'],['Cyclone Ditwah — Compensation Summary Report'],['Generated:',new Date().toLocaleString('en-LK')],[],['Compensation Type','No. of Payments','Total Amount (Rs.)'],...Object.values(breakdown).sort((a,b)=>b.total-a.total).map(r=>[r.label,r.count,r.total]),[],['GRAND TOTAL',allRecords.length,total]];
+    const ws=XLSX.utils.aoa_to_sheet(sd);ws['!cols']=[{wch:40},{wch:18},{wch:20}];XLSX.utils.book_append_sheet(wb,ws,'Summary');
+    const ad=[['Timestamp','Entered By','NIC','Name','GN Division','Comp. Type','Payment','Amount (Rs.)','Flag'],...allRecords.map(r=>[r.timestamp,r.enteredBy,r.nic,r.name,r.gn,COMP_META[r.compType]?.label||r.compType,r.payment||'',r.amount,r.flag])];
+    XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet(ad),'All Records');XLSX.writeFile(wb,`DitwahSummary_${dateStr}.xlsx`);
+  }else if(type==='gn'){
+    const gnMap={};allRecords.forEach(r=>{if(!gnMap[r.gn])gnMap[r.gn]={gn:r.gn,count:0,total:0,biz25:0,biz50:0,biz200:0,halfP1:0,halfP2:0,fullHouse:0};gnMap[r.gn].count++;gnMap[r.gn].total+=r.amount;if(r.compType==='BIZ_25K')gnMap[r.gn].biz25++;else if(r.compType==='BIZ_50K')gnMap[r.gn].biz50++;else if(r.compType==='BIZ_200K')gnMap[r.gn].biz200++;else if(r.compType==='HOUSE_HALF'&&r.payment==='1st Payment')gnMap[r.gn].halfP1++;else if(r.compType==='HOUSE_HALF'&&r.payment==='2nd Payment')gnMap[r.gn].halfP2++;else if(r.compType==='HOUSE_FULL')gnMap[r.gn].fullHouse++;});
+    const gd=[['GN Division','Biz Rs.25K','Biz Rs.50K','Biz Rs.200K','House Half (1st)','House Half (2nd)','House Full','Total Payments','Total Amount (Rs.)'],...Object.values(gnMap).sort((a,b)=>a.gn.localeCompare(b.gn)).map(r=>[r.gn,r.biz25,r.biz50,r.biz200,r.halfP1,r.halfP2,r.fullHouse,r.count,r.total])];
+    const ws=XLSX.utils.aoa_to_sheet(gd);ws['!cols']=[{wch:35},{wch:10},{wch:10},{wch:12},{wch:14},{wch:14},{wch:12},{wch:16},{wch:20}];XLSX.utils.book_append_sheet(wb,ws,'GN Division Breakdown');XLSX.writeFile(wb,`DitwahGN_Breakdown_${dateStr}.xlsx`);
+  }else if(type==='duplicates'){
+        const dups=Object.values(nicMap).filter(g=>g.length>1).flat();
+    const dd=[['NIC','Name','GN Division','Comp. Type','Payment','Amount (Rs.)','Entered By','Timestamp','Flag'],...dups.map(r=>[r.nic,r.name,r.gn,COMP_META[r.compType]?.label||r.compType,r.payment||'',r.amount,r.enteredBy,r.timestamp,r.flag])];
+    const ws=XLSX.utils.aoa_to_sheet(dd);ws['!cols']=[{wch:15},{wch:28},{wch:32},{wch:30},{wch:14},{wch:14},{wch:22},{wch:20},{wch:10}];XLSX.utils.book_append_sheet(wb,ws,'Duplicates');XLSX.writeFile(wb,`DitwahDuplicates_${dateStr}.xlsx`);
+  }
+  toast('Excel file downloaded!','ok');
+}
+
+function printReport(){document.getElementById('print-date').textContent=new Date().toLocaleString('en-LK');window.print();}
+
+function showTab(id){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('page-'+id).classList.add('active');
+  document.querySelector(`[data-tab="${id}"]`).classList.add('active');
+  if(id==='records'||id==='reports')loadRecords();
+}
+
+function toast(msg,type='info'){const icons={ok:'✓',err:'✗',info:'ℹ'};const el=document.createElement('div');el.className=`toast t-${type==='err'?'err':type==='ok'?'ok':'info'}`;el.innerHTML=`<span>${icons[type]||'ℹ'}</span><span>${msg}</span>`;document.getElementById('toast-container').appendChild(el);setTimeout(()=>el.remove(),4000);}
+function showLoading(msg='Loading...'){document.getElementById('loading-msg').textContent=msg;document.getElementById('loading').classList.add('show');}
+function hideLoading(){document.getElementById('loading').classList.remove('show');}
+</script>
+</body>
+</html>
