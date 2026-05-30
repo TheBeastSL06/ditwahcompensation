@@ -135,6 +135,7 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
 .edit-partial-opt.selected{border-color:var(--accent);background:rgba(212,160,23,.08);}
 .edit-partial-opt .epo-label{font-family:'Rajdhani',sans-serif;font-size:11px;color:var(--text2);font-weight:600;text-transform:uppercase;}
 .edit-partial-opt .epo-amount{font-family:'JetBrains Mono',monospace;font-size:13px;color:var(--text);margin-top:2px;}
+.edit-col{position:sticky;right:0;background:var(--surface);box-shadow:-3px 0 8px rgba(0,0,0,.3);}
 .section-label{font-family:'Rajdhani',sans-serif;font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--accent);margin-bottom:10px;margin-top:4px;}
 /* TABLE */
 .table-toolbar{display:flex;gap:10px;align-items:center;margin-bottom:16px;flex-wrap:wrap;}
@@ -337,7 +338,7 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
         <button class="btn btn-pdf btn-sm" onclick="window.print()">🖨 Print/PDF</button>
       </div>
       <div class="card" style="padding:0;overflow:hidden;">
-        <div id="records-container"><div class="spinner"></div></div>
+        <div id="records-container" style="overflow-x:auto;"><div class="spinner"></div></div>
       </div>
     </div>
 
@@ -777,11 +778,11 @@ function renderRecordsTable(records){
       +'<td style="font-size:11px;color:var(--text3);">'+r.enteredBy+'</td>'
       +'<td style="font-size:11px;color:var(--text3);white-space:nowrap;">'+r.timestamp+'</td>'
       +'<td>'+flagHtml+'</td>'
-      +'<td class="no-print"><button class="btn btn-edit" data-row="'+r.row+'">✏ Edit</button></td>'
+      +'<td class="no-print edit-col"><button class="btn btn-edit" data-row="'+r.row+'">✏ Edit</button></td>'
       +'</tr>';
   });
   c.innerHTML='<table class="data-table">'
-    +'<thead><tr><th>#</th><th>NIC</th><th>Name</th><th>GN Division</th><th>Type</th><th>Payment</th><th>Amount (Rs.)</th><th>Bank/Acc</th><th>Entered By</th><th>Date</th><th>Flag</th><th class="no-print">Edit</th></tr></thead>'
+    +'<thead><tr><th>#</th><th>NIC</th><th>Name</th><th>GN Division</th><th>Type</th><th>Payment</th><th>Amount (Rs.)</th><th>Bank/Acc</th><th>Entered By</th><th>Date</th><th>Flag</th><th class="no-print edit-col">Edit</th></tr></thead>'
     +'<tbody>'+rows+'</tbody></table>';
 }
 
